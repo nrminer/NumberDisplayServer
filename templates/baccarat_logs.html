@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+        // Auto-refresh logs every 5 seconds
+        function fetchLogsData() {
+            fetch("{{ url_for('baccarat_logs_handler') }}")
+                .then(response => response.text())
+                .then(data => {
+                    // Parse the fetched HTML and update the logs table body
+                    document.querySelector('tbody').innerHTML = 
+                        new DOMParser().parseFromString(data, 'text/html').querySelector('tbody').innerHTML;
+                })
+                .catch(error => console.error('Error fetching logs data:', error));
+        }
+    
+        // Set the auto-refresh every 5 seconds
+        setInterval(fetchLogsData, 5000);
+    
+        // Fetch logs immediately on page load
+        fetchLogsData();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baccarat Logs</title>
+    <style>
+        /* General Page Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            color: #333;
+            animation: fadeIn 1s ease-in-out;
+        }
+    
+        h1 {
+            text-align: center;
+            color: #555;
+            animation: slideDown 1s ease-in-out;
+        }
+    
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            animation: fadeInUp 1s ease-in-out;
+        }
+    
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+    
+        th {
+            background-color: #007BFF;
+            color: white;
+            text-transform: uppercase;
+        }
+    
+        tr {
+            transition: background-color 0.3s ease-in-out;
+        }
+    
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    
+        /* Winner Styling */
+        .player {
+            color: blue;
+            font-weight: bold;
+        }
+    
+        .banker {
+            color: red;
+            font-weight: bold;
+        }
+    
+        .tie {
+            color: green;
+            font-weight: bold;
+        }
+    
+        /* Button Styling */
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 20px;
+            font-size: 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    
+        button:hover {
+            transform: scale(1.1);
+            background-color: #218838;
+        }
+    
+        /* Link Styling */
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #007BFF;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+    
+        a:hover {
+            color: #0056b3;
+        }
+    
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>    
+    <script>
+        async function resetLogs() {
+            const response = await fetch("/baccarat-logs", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ "action": "reset" })
+            });
+            if (response.ok) {
+                alert("Logs reset successfully!");
+                window.location.reload();
+            } else {
+                alert("Failed to reset logs.");
+            }
+        }
+
+        // Auto-refresh logs every 5 seconds
+        function fetchLogsData() {
+            fetch("{{ url_for('baccarat_logs_handler') }}")
+                .then(response => response.text())
+                .then(data => {
+                    document.querySelector("tbody").innerHTML = 
+                        new DOMParser().parseFromString(data, "text/html").querySelector("tbody").innerHTML;
+                })
+                .catch(error => console.error("Error fetching logs data:", error));
+        }
+
+        setInterval(fetchLogsData, 5000);
+        fetchLogsData();
+    </script>
+</head>
+<body>
+    <h1>Baccarat Game Logs</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Game #</th>
+                <th>Player Total</th>
+                <th>Banker Total</th>
+                <th>Winner</th>
+                <th>Win Margin</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if baccarat_logs %}
+                {% for log in baccarat_logs %}
+                    <tr class="{{ 'tie' if log.winner == 'Tie' else ('player' if log.winner == 'Player' else 'banker') }}">
+                        <td>{{ log.game_number }}</td>
+                        <td>{{ log.player_total }}</td>
+                        <td>{{ log.banker_total }}</td>
+                        <td>{{ log.winner }}</td>
+                        <td>{{ log.win_margin }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5">No logs available</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    <a href="/">Back to Main Screen</a>
+</body>
+</html>

@@ -4,6 +4,7 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = "supersecretkey"  # For session handling
 
+
 # In-memory storage for players and logged-in users
 players = {
     "alice": {"password": "pass123", "chips": 100},
@@ -30,6 +31,62 @@ def log_transaction(username, action, amount, multiplier):
     # Keep only the last 10 transactions
     if len(transaction_log) > 10:
         transaction_log.pop(0)
+
+ 
+        # Global variable to store Baccarat logs
+baccarat_logs = []
+
+@app.route("/baccarat-logs", methods=["GET", "POST"])
+def baccarat_logs_handler():
+    global baccarat_logs
+    try:
+        if request.method == "POST":
+            data = request.get_json()
+
+            # Check if the action is "reset"
+            if data.get("action") == "reset":
+                baccarat_logs = []  # Clear the logs
+                return jsonify({"message": "Baccarat logs reset successfully."}), 200
+
+            # Otherwise, process the logging of results
+            player_total = data.get("player_total")
+            banker_total = data.get("banker_total")
+
+            if player_total is None or banker_total is None:
+                return jsonify({"error": "Player and Banker totals are required."}), 400
+
+            game_number = len(baccarat_logs) + 1
+
+            # Determine winner and win margin
+            if player_total == banker_total:
+                winner = "Tie"
+                win_margin = 0
+            elif player_total > banker_total:
+                winner = "Player"
+                win_margin = player_total - banker_total
+            else:
+                winner = "Banker"
+                win_margin = banker_total - player_total
+
+            # Append result to logs
+            baccarat_logs.append({
+                "game_number": game_number,
+                "player_total": player_total,
+                "banker_total": banker_total,
+                "winner": winner,
+                "win_margin": win_margin
+            })
+
+            return jsonify({"message": "Result logged successfully.", "log": baccarat_logs[-1]}), 200
+
+        # If GET request, render the logs page
+        return render_template("baccarat_logs.html", baccarat_logs=baccarat_logs)
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to process request: {str(e)}"}), 500
+
+
+
 
 # --------------------------------------------------------------------------
 #                             MAIN SCREEN (Fixed for Euros & Status)

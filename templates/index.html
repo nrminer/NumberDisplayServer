@@ -1,10 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Meta & Title -->
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Main Screen - Chip Tracker</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+
+    <!-- Auto-refresh Script -->
     <script>
         // Auto-refresh chips data every 5 seconds
         function fetchChipsData() {
@@ -20,46 +28,105 @@
         // Set the auto-refresh every 5 seconds
         setInterval(fetchChipsData, 5000);
     </script>
+
+    <!-- Casino-Themed Custom Styles -->
     <style>
+        /* Body: Dark Casino Felt Background */
         body {
-            background: linear-gradient(135deg, #8EC5FC 0%, #E0C3FC 100%);
+            background: radial-gradient(circle, #0c1d0a 0%, #030c04 90%);
             min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: 'Trebuchet MS', Arial, sans-serif;
+            color: #f8f8f2;
         }
 
-        .positive {
-            color: #28a745; /* Green for positive balance */
-            font-size: 2rem;
+        /* Navbar: Dark with gold text */
+        .navbar {
+            background-color: #000;
+        }
+        .navbar-brand {
+            color: #ffd700 !important;
             font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+        }
+        .navbar-nav .nav-link {
+            color: #ffd700 !important;
         }
 
-        .negative {
-            color: #dc3545; /* Red for below 3€ balance */
-            font-size: 2rem;
+        /* Main Heading */
+        h1 {
+            color: #ffd700;
             font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+        .lead {
+            color: #dcdcdc;
         }
 
-        .zero-balance {
-            color: #dc3545;
-            font-size: 2rem;
-            font-weight: bold;
+        /* Card Container */
+        #chip-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
+        /* Card Styles */
         .card {
+            background-color: #013220; /* Felt-like green */
+            border: 2px solid #ffd700; /* Gold border */
             border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
             transition: transform 0.3s ease;
+            min-width: 280px;    /* Ensure enough width for larger text */
+            max-width: 400px;    /* Limit to keep them neat side-by-side */
         }
 
         .card:hover {
             transform: translateY(-5px);
         }
+
+        .card h3 {
+            color: #ffd700;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .card p {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        /* Positive/Negative/Zero Balances */
+        .positive {
+            color: #2ed573; /* Bright green */
+        }
+
+        .negative {
+            color: #ff4757; /* Bright red */
+        }
+
+        .zero-balance {
+            color: #ff4757; /* Use the same bright red for zero */
+        }
+
+        /* Footer */
+        footer {
+            background-color: #000;
+            color: #ffd700;
+            text-align: center;
+            padding: 10px 0;
+        }
     </style>
 </head>
 <body>
+
 <!-- Navbar Section -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg">
     <div class="container">
-        <a class="navbar-brand" href="#">uhkapelaaminen</a>
+        <a class="navbar-brand" href="#">Uhkapelaaminen</a>
         <ul class="navbar-nav ms-auto">
             <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
@@ -69,24 +136,22 @@
 
 <!-- Main Content -->
 <div class="container text-center py-5">
-    <h1 class="text-dark fw-bold">paljonko chippejä sulla on?</h1>
-    <p class="lead">Paljonko chippejä täs on</p>
+    <h1>Paljonko chippejä sulla on?</h1>
+    <p class="lead">Seuraa chippejä reaaliajassa!</p>
 
     <!-- Player Chips List with Auto-Refresh -->
-    <div id="chip-container" class="row justify-content-center">
+    <div id="chip-container">
         {% if user_chips_list %}
             {% for player in user_chips_list %}
-            <div class="col-md-4 mb-4">
-                <div class="card p-4 text-center">
-                    <h3>{{ player.username }}</h3>
-                    {% if player.euros == 0 %}
-                        <p class="zero-balance">💀 0 Chips</p>
-                    {% elif player.euros < 3 %}
-                        <p class="negative">{{ player.chips }} Chips ({{ player.euros }} €)</p>
-                    {% else %}
-                        <p class="positive">{{ player.chips }} Chips ({{ player.euros }} €)</p>
-                    {% endif %}
-                </div>
+            <div class="card p-4">
+                <h3>{{ player.username }}</h3>
+                {% if player.euros == 0 %}
+                    <p class="zero-balance">💀 0 Chips</p>
+                {% elif player.euros < 3 %}
+                    <p class="negative">{{ player.chips }} Chips ({{ player.euros }} €)</p>
+                {% else %}
+                    <p class="positive">{{ player.chips }} Chips ({{ player.euros }} €)</p>
+                {% endif %}
             </div>
             {% endfor %}
         {% else %}
@@ -96,8 +161,9 @@
 </div>
 
 <!-- Footer -->
-<footer class="text-center bg-dark text-light py-3">
+<footer>
     <p>&copy; 2024 Chip Tracker | Designed for Guests</p>
 </footer>
+
 </body>
 </html>
